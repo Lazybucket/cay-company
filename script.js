@@ -91,12 +91,11 @@ function updateCartDisplay() {
         cartItemsContainer.innerHTML = `
             <div class="empty-cart">
                 <i class="fas fa-shopping-cart"></i>
-                <p>Giỏ hàng của bạn hiện giờ giống như ví của sinh viên vậy</p>
-                <p>Nó rất trống - Cheems said</p>
+                <p>Giỏ hàng của bạn đang trống</p>
             </div>
         `;
         cartTotal.style.display = 'none';
-    } else 
+    } else {
         let cartHTML = '';
         let total = 0;
         
@@ -151,7 +150,7 @@ function removeFromCart(index) {
     cart.splice(index, 1);
     updateCartDisplay();
     updateCartCount();
-    showNotification('POV : Bạn vừa xóa sản phẩm khỏi giỏ hàng như pro');
+    showNotification('Đã xóa sản phẩm khỏi giỏ hàng!');
 }
 
 // Hàm cập nhật số lượng trong icon giỏ hàng
@@ -172,7 +171,7 @@ function formatPrice(price) {
 // Hàm hiển thị form thanh toán
 function showCheckout() {
     if (cart.length === 0) {
-        showNotification('Giỏ hàng của bạn đang trống rỗng. Hãy thêm sản phẩm vào nhé!', 'info');
+        showNotification('Giỏ hàng của bạn đang trống!');
         return;
     }
     
