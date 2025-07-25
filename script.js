@@ -1,32 +1,23 @@
-
 // Biến toàn cục
 let cart = [];
 const WEBHOOK_URL = 'https://discord.com/api/webhooks/1397623620049572012/UB7R06-vCsbpvcN2p-zztvftzOwh2wHMsyWtQxojDMtq5bfiJ3hfc0VtXrW-tK0WYROF';
 
 // Hàm chuyển đổi tab
 function showTab(tabName) {
-    // Ẩn tất cả tab content
     const tabContents = document.querySelectorAll('.tab-content');
     tabContents.forEach(content => content.classList.remove('active'));
     
-    // Bỏ active từ tất cả tab buttons
     const tabButtons = document.querySelectorAll('.tab-btn');
     tabButtons.forEach(btn => btn.classList.remove('active'));
     
-    // Hiển thị tab được chọn
-    document.getElementById(tabName).classList.add('active');
+    document.getElementById(tabName)?.classList.add('active');
+    event?.target?.classList.add('active');
     
-    // Thêm active cho button được chọn
-    event.target.classList.add('active');
-    
-    // Nếu không có event.target, tìm button theo tab name
-    if (!event.target.classList.contains('tab-btn')) {
+    if (!event?.target?.classList.contains('tab-btn')) {
         const targetBtn = Array.from(tabButtons).find(btn => 
-            btn.onclick.toString().includes(tabName)
+            btn.getAttribute('onclick')?.includes(tabName)
         );
-        if (targetBtn) {
-            targetBtn.classList.add('active');
-        }
+        targetBtn?.classList.add('active');
     }
 }
 
@@ -39,9 +30,7 @@ function addToCart() {
         quantity: 1
     };
     
-    // Kiểm tra sản phẩm đã có trong giỏ hàng chưa
     const existingItem = cart.find(item => item.id === product.id);
-    
     if (existingItem) {
         existingItem.quantity += 1;
     } else {
@@ -50,36 +39,24 @@ function addToCart() {
     
     updateCartDisplay();
     updateCartCount();
-    
-    // Hiển thị thông báo
-    showNotification('POV: Bạn vừa add sản phẩm vào giỏ hàng như pro');
-    
-    // Chuyển sang tab giỏ hàng
-    setTimeout(() => {
-        showTabProgrammatically('cart');
-    }, 1000);
+    showNotification('Khá Bành approve! Add sản phẩm như pro! 🕺');
+    setTimeout(() => showTabProgrammatically('cart'), 1000);
 }
 
 // Hàm hiển thị tab bằng code
 function showTabProgrammatically(tabName) {
-    // Ẩn tất cả tab content
     const tabContents = document.querySelectorAll('.tab-content');
     tabContents.forEach(content => content.classList.remove('active'));
     
-    // Bỏ active từ tất cả tab buttons
     const tabButtons = document.querySelectorAll('.tab-btn');
     tabButtons.forEach(btn => btn.classList.remove('active'));
     
-    // Hiển thị tab được chọn
-    document.getElementById(tabName).classList.add('active');
+    document.getElementById(tabName)?.classList.add('active');
     
-    // Tìm và active button tương ứng
     const targetBtn = Array.from(tabButtons).find(btn => 
-        btn.getAttribute('onclick') && btn.getAttribute('onclick').includes(`'${tabName}'`)
+        btn.getAttribute('onclick')?.includes(tabName)
     );
-    if (targetBtn) {
-        targetBtn.classList.add('active');
-    }
+    targetBtn?.classList.add('active');
 }
 
 // Hàm cập nhật hiển thị giỏ hàng
@@ -87,11 +64,16 @@ function updateCartDisplay() {
     const cartItemsContainer = document.getElementById('cartItems');
     const cartTotal = document.getElementById('cartTotal');
     
+    if (!cartItemsContainer) {
+        console.error('cartItems not found');
+        return;
+    }
+    
     if (cart.length === 0) {
         cartItemsContainer.innerHTML = `
             <div class="empty-cart">
                 <i class="fas fa-shopping-cart"></i>
-                <p>Giỏ hàng của bạn đang trống</p>
+                <p>Giỏ hàng trống - Khá Bành buồn lắm! 😅</p>
             </div>
         `;
         cartTotal.style.display = 'none';
@@ -129,35 +111,53 @@ function updateCartDisplay() {
 
 // Hàm tăng số lượng
 function increaseQuantity(index) {
-    cart[index].quantity += 1;
-    updateCartDisplay();
-    updateCartCount();
+    if (index >= 0 && index < cart.length) {
+        cart[index].quantity += 1;
+        updateCartDisplay();
+        updateCartCount();
+        showNotification('Khá Bành múa quạt approve tăng số lượng! 🕺');
+    } else {
+        console.error('Invalid index:', index);
+    }
 }
 
 // Hàm giảm số lượng
 function decreaseQuantity(index) {
-    if (cart[index].quantity > 1) {
-        cart[index].quantity -= 1;
+    if (index >= 0 && index < cart.length) {
+        if (cart[index].quantity > 1) {
+            cart[index].quantity -= 1;
+        } else {
+            cart.splice(index, 1);
+        }
+        updateCartDisplay();
+        updateCartCount();
+        showNotification('Khá Bành nói: Giảm đi thì bình tĩnh nha! 😅');
     } else {
-        cart.splice(index, 1);
+        console.error('Invalid index:', index);
     }
-    updateCartDisplay();
-    updateCartCount();
 }
 
 // Hàm xóa sản phẩm khỏi giỏ hàng
 function removeFromCart(index) {
-    cart.splice(index, 1);
-    updateCartDisplay();
-    updateCartCount();
-    showNotification('Đã xóa sản phẩm khỏi giỏ hàng!');
+    if (index >= 0 && index < cart.length) {
+        cart.splice(index, 1);
+        updateCartDisplay();
+        updateCartCount();
+        showNotification('Khá Bành xóa giùm bạn rồi! Bye sản phẩm! 🕺');
+    } else {
+        console.error('Invalid index:', index);
+    }
 }
 
 // Hàm cập nhật số lượng trong icon giỏ hàng
 function updateCartCount() {
     const cartCount = document.getElementById('cartCount');
-    const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-    cartCount.textContent = totalItems;
+    if (cartCount) {
+        const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+        cartCount.textContent = totalItems;
+    } else {
+        console.error('cartCount not found');
+    }
 }
 
 // Hàm format giá tiền
@@ -171,18 +171,16 @@ function formatPrice(price) {
 // Hàm hiển thị form thanh toán
 function showCheckout() {
     if (cart.length === 0) {
-        showNotification('Giỏ hàng của bạn đang trống!');
+        showNotification('Khá Bành bảo: Giỏ trống thì mua đi chứ! 😅');
         return;
     }
     
-    // Cập nhật thông tin đơn hàng trong form
     const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     const orderNames = cart.map(item => `${item.name} (x${item.quantity})`).join(', ');
     
     document.getElementById('orderName').value = orderNames;
     document.getElementById('price').value = formatPrice(total);
     
-    // Hiển thị modal
     document.getElementById('checkoutModal').style.display = 'block';
 }
 
@@ -195,185 +193,147 @@ function closeCheckout() {
 // Hàm xử lý form thanh toán
 document.addEventListener('DOMContentLoaded', function() {
     const checkoutForm = document.getElementById('checkoutForm');
-    
-    checkoutForm.addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        // Lấy dữ liệu từ form
-        const formData = new FormData(checkoutForm);
-        const orderData = {
-            fullName: formData.get('fullName'),
-            phone: formData.get('phone'),
-            orderName: formData.get('orderName'),
-            price: formData.get('price'),
-            email: formData.get('email') || 'Không cung cấp',
-            note: formData.get('note') || 'Không có ghi chú'
-        };
-        
-        // Tạo message cho Discord
-        const discordMessage = {
-            embeds: [{
-                title: '🛒 Đơn Hàng Mới',
-                color: 0x667eea,
-                fields: [
-                    {
-                        name: '👤 Họ và Tên',
-                        value: orderData.fullName,
-                        inline: true
-                    },
-                    {
-                        name: '📱 Số Điện Thoại',
-                        value: orderData.phone,
-                        inline: true
-                    },
-                    {
-                        name: '📧 Email',
-                        value: orderData.email,
-                        inline: true
-                    },
-                    {
-                        name: '📦 Tên Đơn Hàng',
-                        value: orderData.orderName,
-                        inline: false
-                    },
-                    {
-                        name: '💰 Giá',
-                        value: orderData.price,
-                        inline: true
-                    },
-                    {
-                        name: '📝 Ghi Chú',
-                        value: orderData.note,
-                        inline: false
-                    }
-                ],
-                timestamp: new Date().toISOString(),
-                footer: {
-                    text: 'Cửa Hàng Tài Liệu Học Tập'
-                }
-            }]
-        };
-        
-        try {
-            // Gửi đến Discord webhook
-            const response = await fetch(WEBHOOK_URL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(discordMessage)
-            });
+    if (checkoutForm) {
+        checkoutForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const submitBtn = checkoutForm.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
             
-            if (response.ok) {
-                showNotification('Đặt hàng thành công! Chúng tôi sẽ liên hệ với bạn sớm nhất.', 'success');
-                
-                // Reset giỏ hàng và form
-                cart = [];
-                updateCartDisplay();
-                updateCartCount();
-                closeCheckout();
-                
-                // Chuyển về trang chủ
-                setTimeout(() => {
-                    showTabProgrammatically('home');
-                }, 2000);
-            } else {
-                throw new Error('Lỗi khi gửi đơn hàng');
+            const formData = new FormData(checkoutForm);
+            const orderData = {
+                fullName: formData.get('fullName'),
+                phone: formData.get('phone'),
+                orderName: formData.get('orderName'),
+                price: formData.get('price'),
+                email: formData.get('email') || 'Không cung cấp',
+                note: formData.get('note') || 'Không có ghi chú'
+            };
+            
+            if (!orderData.fullName || !orderData.phone || !orderData.orderName) {
+                showNotification('Khá Bành bảo: Điền đủ thông tin đi bạn ơi! 😓', 'error');
+                submitBtn.disabled = false;
+                return;
             }
-        } catch (error) {
-            console.error('Error:', error);
-            showNotification('Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại!', 'error');
-        }
-    });
+            
+            const discordMessage = {
+                embeds: [{
+                    title: '🛒 Đơn Hàng Mới - Khá Bành Approve! 🕺',
+                    color: 0x667eea,
+                    fields: [
+                        { name: '👤 Họ và Tên', value: orderData.fullName, inline: true },
+                        { name: '📱 Số Điện Thoại', value: orderData.phone, inline: true },
+                        { name: '📧 Email', value: orderData.email, inline: true },
+                        { name: '📦 Tên Đơn Hàng', value: orderData.orderName, inline: false },
+                        { name: '💰 Giá', value: orderData.price, inline: true },
+                        { name: '📝 Ghi Chú', value: orderData.note, inline: false }
+                    ],
+                    timestamp: new Date().toISOString(),
+                    footer: { text: 'Cửa Hàng Tài Liệu - Khá Bành Múa Quạt' }
+                }]
+            };
+            
+            try {
+                const response = await fetch(WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(discordMessage)
+                });
+                
+                if (response.ok) {
+                    showNotification('Khá Bành nói: Đặt hàng thành công! Liên hệ sớm nha! 🕺', 'success');
+                    cart = [];
+                    updateCartDisplay();
+                    updateCartCount();
+                    closeCheckout();
+                    setTimeout(() => showTabProgrammatically('home'), 2000);
+                } else {
+                    throw new Error('Webhook failed');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showNotification('Khá Bành bảo: Lỗi rồi! Thử lại đi bạn ơi! 😓', 'error');
+            } finally {
+                submitBtn.disabled = false;
+            }
+        });
+    } else {
+        console.error('checkoutForm not found');
+    }
 });
 
 // Hàm hiển thị thông báo
 function showNotification(message, type = 'info') {
-    // Tạo element thông báo
     const notification = document.createElement('div');
     notification.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        padding: 1rem 1.5rem;
-        border-radius: 10px;
-        color: white;
-        font-weight: 600;
-        z-index: 9999;
-        animation: slideIn 0.3s ease;
-        max-width: 300px;
-        box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        position: fixed; top: 20px; right: 20px; padding: 1rem 1.5rem;
+        border-radius: 10px; color: white; font-weight: 600; z-index: 9999;
+        animation: slideIn 0.3s ease; max-width: 300px; box-shadow: 0 5px 20px rgba(0,0,0,0.3);
     `;
     
-    // Màu sắc theo loại thông báo
-    switch(type) {
-        case 'success':
-            notification.style.background = 'linear-gradient(135deg, #2ed573, #17c0eb)';
-            break;
-        case 'error':
-            notification.style.background = 'linear-gradient(135deg, #ff4757, #ff3742)';
-            break;
-        default:
-            notification.style.background = 'linear-gradient(135deg, #667eea, #764ba2)';
-    }
+    const colors = {
+        success: 'linear-gradient(135deg, #2ed573, #17c0eb)',
+        error: 'linear-gradient(135deg, #ff4757, #ff3742)',
+        info: 'linear-gradient(135deg, #667eea, #764ba2)'
+    };
+    notification.style.background = colors[type] || colors.info;
     
     notification.innerHTML = `
         <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
         ${message}
     `;
     
-    // Thêm CSS animation
     const style = document.createElement('style');
     style.textContent = `
-        @keyframes slideIn {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-        @keyframes slideOut {
-            from {
-                transform: translateX(0);
-                opacity: 1;
-            }
-            to {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-        }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes slideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }
     `;
     document.head.appendChild(style);
     
-    // Thêm vào trang
     document.body.appendChild(notification);
-    
-    // Tự động xóa sau 4 giây
     setTimeout(() => {
         notification.style.animation = 'slideOut 0.3s ease';
-        setTimeout(() => {
-            if (notification.parentNode) {
-                notification.parentNode.removeChild(notification);
-            }
-        }, 300);
+        setTimeout(() => notification.remove(), 300);
     }, 4000);
 }
 
 // Đóng modal khi click bên ngoài
 window.onclick = function(event) {
     const modal = document.getElementById('checkoutModal');
-    if (event.target === modal) {
-        closeCheckout();
+    if (event.target === modal) closeCheckout();
+}
+
+// Hàm thêm GIF Khá Bành
+function addKhaBanhGif() {
+    const homeTab = document.getElementById('home');
+    if (homeTab) {
+        const gifContainer = document.createElement('div');
+        gifContainer.className = 'khabanh-gif-container';
+        gifContainer.style.cssText = 'text-align: center; margin: 20px 0; opacity: 0; transition: opacity 1s ease-in-out';
+        gifContainer.innerHTML = `
+            <a href="/images/khabanh.gif" target="_blank" class="gif-link">
+                <img src="/images/khabanh.gif" alt="Khá Bành múa quạt" style="max-width: 300px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+            </a>
+            <p style="color: #666; font-size: 0.9rem; margin-top: 10px;">Khá Bành approve tài liệu này! 🕺</p>
+        `;
+        homeTab.insertBefore(gifContainer, homeTab.firstChild);
+        setTimeout(() => gifContainer.style.opacity = '1', 100);
+    } else {
+        console.error('home tab not found');
     }
 }
 
-// Khởi tạo trang
+// Khởi tạo
 document.addEventListener('DOMContentLoaded', function() {
-    // Hiển thị tab home mặc định
     showTabProgrammatically('home');
     updateCartCount();
+    addKhaBanhGif();
 });
 
+// CSS cho hiệu ứng
+const style = document.createElement('style');
+style.textContent = `
+    .gif-link { text-decoration: none; display: inline-block; }
+    .gif-link:hover img { opacity: 0.8; transition: opacity 0.3s ease; }
+    .gif-link:hover::after { content: " (Follow Link)"; color: #1e90ff; font-size: 0.8rem; margin-left: 5px; }
+`;
+document.head.appendChild(style);
