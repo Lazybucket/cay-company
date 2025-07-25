@@ -336,8 +336,4 @@ style.textContent = `
     .gif-link:hover img { opacity: 0.8; transition: opacity 0.3s ease; }
     .gif-link:hover::after { content: " (Follow Link)"; color: #1e90ff; font-size: 0.8rem; margin-left: 5px; }
 `;
-<<<<<<< HEAD
 document.head.appendChild(style);
-=======
-document.head.appendChild(style);
->>>>>>> 708e2a8c7f68236d4d325fd7f1f44b2d67c6f68d
